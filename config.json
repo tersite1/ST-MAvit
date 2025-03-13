@@ -1,0 +1,61 @@
+{
+  "input": {
+    "image": {
+      "shape": [256, 256, 13],  # [Height, Width, Channels]
+      "dtype": "float32",
+      "normalization": "[0, 1]"
+    },
+    "metadata": {
+      "coordinates": {
+        "latitude": "float",
+        "longitude": "float"
+      },
+      "timestamp": "ISO8601"
+    }
+  },
+  "preprocessing": [
+    "RandomRotate(degrees=30)",
+    "AnchorAwareMasking(mask_ratio=0.75)"
+  ],
+  "ST-MAViT": {
+    "encoder": {
+      "patch_embedding": {
+        "patch_size": 16,
+        "embed_dim": 768
+      },
+      "maxvit_blocks": [
+        {
+          "type": "MaxViTBlock",
+          "dim": 768,
+          "window_size": [8, 8],
+          "dilation": 2,
+          "num_heads": 12
+        },
+        {
+          "type": "MaxViTBlock",
+          "dim": 768,
+          "window_size": [16, 16],
+          "dilation": 4,
+          "num_heads": 12
+        }
+      ],
+      "a2mae_modules": {
+        "anchor_selection": "k-means",
+        "geo_encoding": {
+          "latlon_embed_dim": 128,
+          "time_embed_dim": 64
+        }
+      }
+    },
+    "decoder": {
+      "classification": {
+        "head": "MLP",
+        "layers": [768, 256, "num_classes"]
+      },
+      "segmentation": {
+        "head": "U-Net",
+        "upsample_steps": 4
+      }
+    }
+  }
+}
