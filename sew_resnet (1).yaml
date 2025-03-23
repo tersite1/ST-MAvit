@@ -1,0 +1,88 @@
+# 로그 디렉토리
+log_dir: /mntcephfs/lab_data/yuanxinhang/benchmark_results/logs_final/sew_resnet
+
+# 모델 설정
+pretrained: false
+model_name: sew_resnet
+backbone_name: sew_resnet
+
+# 백본 설정
+backbone_config:
+  num_classes: 2           # 클래스 수
+  inc: 3                   # 입력 채널 수 (RGB)
+  T: 4                     # 시간 단계 수 (스파이킹 뉴런용)
+  connect_f: ADD           # 잔차 연결 방식: ADD, AND, IAND
+  model_size: sew_resnet18 # 모델 크기: sew_resnet18, sew_resnet34, ...
+  layers: [2, 2, 2, 2]     # 레이어 구성 (모델 크기에 따라 변경 가능)
+
+# 데이터셋 설정
+all_dataset: [FaceForensics++, FF-F2F, FF-DF, FF-FS, FF-NT, FaceShifter, DeepFakeDetection, Celeb-DF-v1, Celeb-DF-v2, DFDCP, DFDC, DeeperForensics-1.0, UADFV]
+train_dataset: [FF-NT]
+test_dataset: [FaceForensics++, FF-F2F, FF-DF, FF-FS, FF-NT]
+SNN: true
+
+compression: c23
+train_batchSize: 16
+test_batchSize: 16
+workers: 8
+frame_num: {'train': 32, 'test': 32}
+resolution: 128
+with_mask: false
+with_landmark: false
+save_ckpt: true
+save_feat: true
+
+# 데이터 증강 설정
+use_data_augmentation: false
+data_aug:
+  flip_prob: 0.5
+  rotate_prob: 0.5
+  rotate_limit: [-10, 10]
+  blur_prob: 0.5
+  blur_limit: [3, 7]
+  brightness_prob: 0.5
+  brightness_limit: [-0.1, 0.1]
+  contrast_limit: [-0.1, 0.1]
+  quality_lower: 40
+  quality_upper: 100
+
+# 정규화 설정
+mean: [0.5, 0.5, 0.5]
+std: [0.5, 0.5, 0.5]
+
+# 최적화 설정
+optimizer:
+  type: adam
+  adam:
+    lr: 0.0002
+    beta1: 0.9
+    beta2: 0.999
+    eps: 0.00000001
+    weight_decay: 0.0005
+    amsgrad: false
+  sgd:
+    lr: 0.0002
+    momentum: 0.9
+    weight_decay: 0.0005
+
+# 학습 설정
+lr_scheduler: null
+nEpochs: 10
+start_epoch: 0
+save_epoch: 1
+rec_iter: 100
+logdir: ./logs
+manualSeed: 1024
+save_ckpt: false
+
+# 손실 함수 설정
+loss_func: snn_cross_entropy   # loss function to use
+label_smoothing: 0.1   # label smoothing for cross entropy loss
+losstype: null
+
+# 평가 지표
+metric_scoring: auc
+
+# GPU 설정
+cuda: true
+cudnn: true
